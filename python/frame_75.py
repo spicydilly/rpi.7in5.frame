@@ -89,9 +89,6 @@ def main():
         draw.text((68, 100), f"{current_weather['current']['temp_c']}\N{DEGREE SIGN}C", font = FONT28, fill = 0)
         draw.text((68, 130), current_weather["current"]["condition"]["text"], font = FONT28, fill = 0)
 
-        draw.text((2, 400), f"I LOVE", font = FONT64, fill = 0)
-        draw.text((2, 470), f"BARRY", font = FONT64, fill = 0)
-
         image = image.rotate(180) # rotate
         epd.display(epd.getbuffer(image))
 
