@@ -7,7 +7,8 @@ import datetime
 import logging
 import epd7in5_V2
 from PIL import Image,ImageDraw,ImageFont
-import weather_check as weather
+import weather_check as weatherCheck
+import bus_check as busCheck
 
 fontdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'fonts')
 
@@ -55,7 +56,7 @@ WEATHER_ICON_MAP_NIGHT = {
 def main():
     """Main Method, updates the display stats"""
     try:
-        logging.info("Running Plex Display")
+        logging.info("Running Display")
 
         epd = epd7in5_V2.EPD()
         logging.info("init and Clear")
@@ -78,8 +79,8 @@ def main():
         draw.rectangle([(0,0),(96, 44)],outline = 0)
 
         #weather
-        weather_client = weather.WeatherClient()
-        current_weather = weather.get_current(weather_client)
+        weather_client = weatherCheck.WeatherClient()
+        current_weather = weatherCheck.get_current(weather_client)
 
         #check if day or night
         if current_weather['current']['is_day'] == 1:
@@ -88,6 +89,13 @@ def main():
             draw.text((2, 100), WEATHER_ICON_MAP_NIGHT[current_weather["current"]["condition"]["code"]], font = WEATHER_ICON, fill = 0)
         draw.text((68, 100), f"{current_weather['current']['temp_c']}\N{DEGREE SIGN}C", font = FONT28, fill = 0)
         draw.text((68, 130), current_weather["current"]["condition"]["text"], font = FONT28, fill = 0)
+
+        #get bus times
+        busses_due = busCheck.get_bus()
+        start_y = 160
+        for bus in busses_due:
+            draw.text((2, start_y), f'{bus[0]} mins - {bus[1]}', font = FONT28, fill = 0)
+            start_y += 30
 
         image = image.rotate(180) # rotate
         epd.display(epd.getbuffer(image))
