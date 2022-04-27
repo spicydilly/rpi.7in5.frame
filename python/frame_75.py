@@ -17,6 +17,7 @@ logging.basicConfig(level=logging.DEBUG)
 FONT64 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 64)
 FONT36 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 36)
 FONT28 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 28)
+FONT22 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 22)
 FONT18 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 18)
 FONT14 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 14)
 FONT11 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 11)
@@ -92,10 +93,33 @@ def main():
 
         #get bus times
         busses_due = busCheck.get_bus()
-        start_y = 160
+        start_y = 644
+        step_y = 24
+
+        #print name of stop
+        draw.rectangle([(286,642),(376, 790)],outline = 0)
+        draw.text((290, start_y), "Church", font = FONT22, fill = 0)
+        start_y += step_y
+        temp_count = 0
         for bus in busses_due:
-            draw.text((2, start_y), f'{bus[0]} mins - {bus[1]}', font = FONT28, fill = 0)
-            start_y += 30
+            if bus[0] > 0 and temp_count < 5:
+                draw.text((290, start_y), str(bus[0]) + "m", font = FONT22, fill = 0)
+                draw.text((340, start_y), bus[1], font = FONT18, fill = 0)
+                start_y += step_y
+                temp_count += 1
+        
+        start_y = 644
+        #print name of stop
+        draw.rectangle([(376,642),(466, 790)],outline = 0)
+        draw.text((380, start_y), "Cross", font = FONT22, fill = 0)
+        start_y += step_y
+        temp_count = 0
+        for bus in busses_due:
+            if bus[0] > 0 and temp_count < 5:
+                draw.text((380, start_y), str(bus[0]) + "m", font = FONT22, fill = 0)
+                draw.text((430, start_y), bus[1], font = FONT18, fill = 0)
+                start_y += step_y
+                temp_count += 1
 
         image = image.rotate(180) # rotate
         epd.display(epd.getbuffer(image))
