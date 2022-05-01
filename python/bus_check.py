@@ -25,10 +25,11 @@ def get_bus(stop_num):
         logging.info(client_json)
         sch_bus = []
         for bus in client_json['stopEvents']:
+            time_arrive = bus_time_difference(time_now, bus['departureTimePlanned'])
             if 'departureTimeEstimated' in bus:
-                sch_bus += [[bus_time_difference(time_now, bus['departureTimePlanned']), 'Live', bus['transportation']['disassembledName']]]
+                sch_bus += [[time_arrive, 'Live', bus['transportation']['disassembledName']]]
             else:
-                sch_bus += [[bus_time_difference(time_now, bus['departureTimePlanned']), '--', bus['transportation']['disassembledName']]]
+                sch_bus += [[time_arrive, '--', bus['transportation']['disassembledName']]]
         logging.info(sch_bus)
         return sch_bus
     logging.error("Error connecting to TransportForIreland.ie!\nError : %s", client_request.status_code)

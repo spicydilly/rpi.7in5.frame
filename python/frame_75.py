@@ -78,8 +78,8 @@ def bus_times(draw):
     for bus in bus_data:
         if bus[0] > 0 and temp_count < 5:
             draw.text((290, start_y), str(bus[0]) + "m", font = FONT22, fill = 0)
-            draw.text((340, start_y), bus[1], font = FONT11, fill = 0)
-            draw.text((340, start_y+11), bus[2], font = FONT11, fill = 0)
+            draw.text((348, start_y), bus[1], font = FONT11, fill = 0)
+            draw.text((348, start_y+11), bus[2], font = FONT11, fill = 0)
             start_y += step_y
             temp_count += 1
     
@@ -94,8 +94,8 @@ def bus_times(draw):
     for bus in bus_data:
         if bus[0] > 0 and temp_count < 5:
             draw.text((380, start_y), str(bus[0]) + "m", font = FONT22, fill = 0)
-            draw.text((430, start_y), bus[1], font = FONT11, fill = 0)
-            draw.text((430, start_y+11), bus[2], font = FONT11, fill = 0)
+            draw.text((438, start_y), bus[1], font = FONT11, fill = 0)
+            draw.text((438, start_y+11), bus[2], font = FONT11, fill = 0)
             start_y += step_y
             temp_count += 1
 
