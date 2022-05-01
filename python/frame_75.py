@@ -5,23 +5,27 @@ import sys
 import os
 import datetime
 import logging
+import configparser
 import epd7in5_V2
 from PIL import Image,ImageDraw,ImageFont
 import weather_check as weatherCheck
 import bus_check as busCheck
 
-fontdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'fonts')
+FONTDIR = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'fonts')
+
+CONFIG_FILE = os.path.join(os.path.dirname(__file__),"config.cfg")
 
 logging.basicConfig(level=logging.DEBUG)
 
-FONT64 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 64)
-FONT36 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 36)
-FONT28 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 28)
-FONT18 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 18)
-FONT14 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 14)
-FONT11 = ImageFont.truetype(os.path.join(fontdir, 'Font.ttc'), 11)
+FONT64 = ImageFont.truetype(os.path.join(FONTDIR, 'Font.ttc'), 64)
+FONT36 = ImageFont.truetype(os.path.join(FONTDIR, 'Font.ttc'), 36)
+FONT28 = ImageFont.truetype(os.path.join(FONTDIR, 'Font.ttc'), 28)
+FONT22 = ImageFont.truetype(os.path.join(FONTDIR, 'Font.ttc'), 22)
+FONT18 = ImageFont.truetype(os.path.join(FONTDIR, 'Font.ttc'), 18)
+FONT14 = ImageFont.truetype(os.path.join(FONTDIR, 'Font.ttc'), 14)
+FONT11 = ImageFont.truetype(os.path.join(FONTDIR, 'Font.ttc'), 11)
 
-WEATHER_ICON = ImageFont.truetype(os.path.join(fontdir,'meteocons.ttf'), 64)
+WEATHER_ICON = ImageFont.truetype(os.path.join(FONTDIR,'meteocons.ttf'), 64)
 
 WEATHER_ICON_MAP_DAY = {
 1000 : "B", 1003 : "H", 1006 : "N", 1009 : "Y",
@@ -52,6 +56,48 @@ WEATHER_ICON_MAP_NIGHT = {
 1258 : "W", 1261 : "X", 1264 : "X", 1273 : "Q",
 1276 : "R", 1279 : "U", 1282 : "W"  
 }
+
+def read_config(section):
+    config = configparser.ConfigParser()
+    config.read(CONFIG_FILE)
+    return config[section]
+
+def bus_times(draw):
+    bus_config = read_config("Bus")
+    step_y = 24
+
+    #bus 1
+    logging.info(f'Bus stop number - {bus_config["Bus1"]}')
+    bus_data = busCheck.get_bus(bus_config["Bus1"])
+    start_y = 644
+    draw.rectangle([(286,642),(376, 790)],outline = 0)
+    draw.line([(286, 668),(466, 668)])
+    draw.text((290, start_y), "Church", font = FONT22, fill = 0)
+    start_y += step_y
+    temp_count = 0
+    for bus in bus_data:
+        if bus[0] > 0 and temp_count < 5:
+            draw.text((290, start_y), str(bus[0]) + "m", font = FONT22, fill = 0)
+            draw.text((340, start_y), bus[1], font = FONT11, fill = 0)
+            draw.text((340, start_y+11), bus[2], font = FONT11, fill = 0)
+            start_y += step_y
+            temp_count += 1
+    
+    #bus 2
+    logging.info(f'Bus stop number - {bus_config["Bus2"]}')
+    bus_data = busCheck.get_bus(bus_config["Bus2"])
+    start_y = 644
+    draw.rectangle([(376,642),(466, 790)],outline = 0)
+    draw.text((380, start_y), "Cross", font = FONT22, fill = 0)
+    start_y += step_y
+    temp_count = 0
+    for bus in bus_data:
+        if bus[0] > 0 and temp_count < 5:
+            draw.text((380, start_y), str(bus[0]) + "m", font = FONT22, fill = 0)
+            draw.text((430, start_y), bus[1], font = FONT11, fill = 0)
+            draw.text((430, start_y+11), bus[2], font = FONT11, fill = 0)
+            start_y += step_y
+            temp_count += 1
 
 def main():
     """Main Method, updates the display stats"""
@@ -90,12 +136,7 @@ def main():
         draw.text((68, 100), f"{current_weather['current']['temp_c']}\N{DEGREE SIGN}C", font = FONT28, fill = 0)
         draw.text((68, 130), current_weather["current"]["condition"]["text"], font = FONT28, fill = 0)
 
-        #get bus times
-        busses_due = busCheck.get_bus()
-        start_y = 160
-        for bus in busses_due:
-            draw.text((2, start_y), f'{bus[0]} mins - {bus[1]}', font = FONT28, fill = 0)
-            start_y += 30
+        bus_times(draw)
 
         image = image.rotate(180) # rotate
         epd.display(epd.getbuffer(image))
